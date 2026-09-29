@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriFlow Prototipe</title>
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --ink:#1b2430; --muted:#5d6673; --line:#e2ddd3;
+  --navy:#15233b; --navy-soft:#24365a;
+  --green:#1f7a4d; --green-bg:#e6f2ea;
+  --amber:#a86400; --amber-bg:#fbefd9;
+  --red:#b23b2e; --red-bg:#f8e3df;
+  --radius:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.num,td.n,th.n{font-variant-numeric:tabular-nums;text-align:right}
+header{background:var(--navy);color:#fff}
+.bar{max-width:1200px;margin:0 auto;padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:18px;letter-spacing:.2px}
+.brand small{display:block;font-weight:400;font-size:12px;color:#b8c3d6}
+nav{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+nav button{background:transparent;border:0;color:#c9d3e3;padding:8px 12px;border-radius:6px;font:inherit;cursor:pointer}
+nav button:hover{background:var(--navy-soft);color:#fff}
+nav button.on{background:#fff;color:var(--navy);font-weight:600}
+.note{background:var(--amber-bg);color:#6b4300;border-bottom:1px solid #efd9ad}
+.note .bar{padding:8px 16px;font-size:13px}
+main{max-width:1200px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:22px;margin:0 0 4px}
+h2{font-size:16px;margin:0 0 12px}
+.sub{color:var(--muted);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media (max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}}
+.stat .k{color:var(--muted);font-size:12px}
+.stat .v{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.stat .h{font-size:12px;color:var(--muted)}
+.tbl{width:100%;overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{font-size:12px;color:var(--muted);font-weight:600;background:#fbfaf7;white-space:nowrap}
+tr.off td{color:#8a919b}
+tfoot td{font-weight:700;border-top:2px solid var(--line)}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;font-weight:600;white-space:nowrap}
+.t-green{background:var(--green-bg);color:var(--green)}
+.t-amber{background:var(--amber-bg);color:var(--amber)}
+.t-red{background:var(--red-bg);color:var(--red)}
+.t-gray{background:#eceae4;color:#4d5560}
+.t-navy{background:#e3e8f2;color:var(--navy)}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+input,select{font:inherit;padding:7px 9px;border:1px solid #cfc8bb;border-radius:6px;background:#fff;color:var(--ink);width:100%}
+input:focus,select:focus{outline:2px solid #9fb4d6;border-color:#7d93b8}
+td input{padding:4px 6px;min-width:70px;text-align:right}
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.btn{font:inherit;border:1px solid #cfc8bb;background:#fff;color:var(--ink);padding:8px 14px;border-radius:6px;cursor:pointer}
+.btn:hover{background:#f1eee7}
+.btn.pri{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.btn.pri:hover{background:#18633e}
+.btn.dark{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.sm{padding:4px 10px;font-size:12px}
+.btn.link{border:0;background:none;color:var(--red);padding:4px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row.end{justify-content:flex-end}
+.spacer{flex:1}
+.alert{padding:10px 12px;border-radius:6px;margin:8px 0;font-size:13px}
+.alert.a{background:var(--amber-bg);color:#6b4300}
+.alert.r{background:var(--red-bg);color:#7a2319}
+.alert.g{background:var(--green-bg);color:#14532f}
+.why{font-size:12px;color:var(--muted)}
+.flow{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:4px}
+.flow span{padding:3px 8px;border:1px solid var(--line);border-radius:4px;background:#fff}
+.flow span.on{border-color:var(--green);color:var(--green);font-weight:600}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+details summary{cursor:pointer;color:var(--navy);font-weight:600}
+.small{font-size:12px;color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="brand">AgriFlow<small>Perencanaan pembelian sekam untuk pembeli energi</small></div>
+    <nav id="nav">
+      <button data-v="ringkasan">Ringkasan</button>
+      <button data-v="pemasok">Pemasok</button>
+      <button data-v="rencana">Rencana Pembelian</button>
+      <button data-v="pesanan">Pesanan dan Penerimaan</button>
+      <button data-v="evaluasi">Evaluasi</button>
+    </nav>
+  </div>
+</header>
+<div class="note"><div class="bar">Prototipe dengan data contoh. Nama pemasok, harga, dan riwayat pengiriman dibuat untuk demonstrasi dan tidak mewakili transaksi nyata.</div></div>
+<main id="app"></main>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- utilitas ---------- */
+const TODAY = new Date("2026-09-29");
+const fmtRp = v => "Rp" + Math.round(v).toLocaleString("id-ID");
+const fmtT = (v,d=1) => (Math.round(v*Math.pow(10,d))/Math.pow(10,d)).toLocaleString("id-ID",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtPct = (v,d=1) => fmtT(v*100,d) + "%";
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2,9);
+const daysSince = d => Math.floor((TODAY - new Date(d))/86400000);
+const $ = s => document.querySelector(s);
+
+/* ---------- data contoh ---------- */
+function seed(){
+  return {
+    settings:{
+      periode:"Oktober 2026",
+      pembeli:"Pembeli energi contoh (boiler industri)",
+      kebutuhan:200,
+      maxAir:15, maxAbu:20,
+      anggaran:260000000,
+      biayaKurang:450000,
+      maxAmbil:0.8,
+      faktorPerkiraan:0.7,
+      hanyaDikonfirmasi:false,
+      baselineBiaya:1180000
+    },
+    suppliers:[
+      {id:"s1",nama:"Penggilingan A",lokasi:"Kecamatan Utara",jarak:18,stokAwal:40,produksi:70,pakaiSendiri:6,dijanjikan:20,susut:2,kadarAir:12,abu:18,harga:640000,biayaOlah:90000,ongkosKm:3200,status:"dikonfirmasi",diperbarui:"2026-09-27",riwayat:[{janji:30,terima:29},{janji:25,terima:25},{janji:28,terima:26}]},
+      {id:"s2",nama:"Penggilingan B",lokasi:"Kecamatan Utara",jarak:24,stokAwal:30,produksi:80,pakaiSendiri:10,dijanjikan:15,susut:2,kadarAir:14,abu:19,harga:590000,biayaOlah:100000,ongkosKm:3200,status:"dikonfirmasi",diperbarui:"2026-09-26",riwayat:[{janji:30,terima:21},{janji:35,terima:27},{janji:30,terima:24}]},
+      {id:"s3",nama:"Penggilingan C",lokasi:"Kecamatan Tengah",jarak:9,stokAwal:15,produksi:28,pakaiSendiri:4,dijanjikan:10,susut:1,kadarAir:16,abu:17,harga:560000,biayaOlah:90000,ongkosKm:3200,status:"dikonfirmasi",diperbarui:"2026-09-28",riwayat:[{janji:15,terima:15}]},
+      {id:"s4",nama:"Penggilingan D",lokasi:"Kecamatan Selatan",jarak:41,stokAwal:48,produksi:90,pakaiSendiri:8,dijanjikan:25,susut:3,kadarAir:11,abu:17,harga:610000,biayaOlah:85000,ongkosKm:3200,status:"dikonfirmasi",diperbarui:"2026-09-25",riwayat:[{janji:40,terima:39},{janji:45,terima:44}]},
+      {id:"s5",nama:"Penggilingan E",lokasi:"Kecamatan Selatan",jarak:52,stokAwal:25,produksi:80,pakaiSendiri:5,dijanjikan:30,susut:2,kadarAir:13,abu:19,harga:520000,biayaOlah:80000,ongkosKm:3200,status:"perkiraan",diperbarui:"2026-09-12",riwayat:[]},
+      {id:"s6",nama:"Penggilingan F",lokasi:"Kecamatan Barat",jarak:33,stokAwal:18,produksi:60,pakaiSendiri:3,dijanjikan:12,susut:1,kadarAir:12,abu:18,harga:630000,biayaOlah:95000,ongkosKm:3200,status:"perkiraan",diperbarui:"2026-09-20",riwayat:[{janji:20,terima:17}]}
+    ],
+    plan:null,
+    orders:[
+      {id:"o0",periode:"September 2026",dibuat:"2026-08-29",kebutuhan:180,status:"selesai",items:[
+        {sid:"s1",nama:"Penggilingan A",qtyBasah:28,air:12,costWet:787600,terima:26,airUkur:12.5,ditolak:0,tepatWaktu:true},
+        {sid:"s4",nama:"Penggilingan D",qtyBasah:95,air:11,costWet:826200,terima:92,airUkur:11.2,ditolak:0,tepatWaktu:true},
+        {sid:"s2",nama:"Penggilingan B",qtyBasah:30,air:14,costWet:766800,terima:24,airUkur:15.8,ditolak:4,tepatWaktu:false},
+        {sid:"s6",nama:"Penggilingan F",qtyBasah:20,air:12,costWet:830600,terima:17,airUkur:12.1,ditolak:0,tepatWaktu:true}
+      ]}
+    ],
+    view:"ringkasan"
+  };
+}
+
+let S;
+function load(){
+  try{ const raw = localStorage.getItem("agriflow-proto-v1"); S = raw ? JSON.parse(raw) : seed(); }
+  catch(e){ S = seed(); }
+}
+function save(){ try{ localStorage.setItem("agriflow-proto-v1", JSON.stringify(S)); }catch(e){} }
+
+/* ---------- perhitungan ---------- */
+function reliability(s){
+  const r = (s.riwayat||[]).slice(-6);
+  const j = r.reduce((a,x)=>a+x.janji,0), t = r.reduce((a,x)=>a+x.terima,0);
+  if(!j) return {v:0.85, n:0, asumsi:true};
+  return {v:Math.max(0,Math.min(1,t/j)), n:r.length, asumsi:false};
+}
+function stokBebas(s){
+  return s.stokAwal + s.produksi - s.pakaiSendiri - s.dijanjikan - s.susut;
+}
+function costWet(s){ return s.harga + s.biayaOlah + s.ongkosKm*s.jarak; }
+
+function analyse(s, st){
+  const kf = 1 - s.kadarAir/100;
+  const bebasRaw = stokBebas(s);
+  const bebas = Math.max(0, bebasRaw);
+  const rel = reliability(s);
+  const cw = costWet(s);
+  const cDry = cw / kf;
+  const eff = cDry + (1-rel.v)*st.biayaKurang;
+  const reasons = [];
+  let ok = true;
+  if(s.kadarAir > st.maxAir){ ok=false; reasons.push(`Kadar air ${fmtT(s.kadarAir)}% melewati batas ${fmtT(st.maxAir)}%`); }
+  if(s.abu > st.maxAbu){ ok=false; reasons.push(`Kadar abu ${fmtT(s.abu)}% melewati batas ${fmtT(st.maxAbu)}%`); }
+  if(st.hanyaDikonfirmasi && s.status==="perkiraan"){ ok=false; reasons.push("Stok belum dikonfirmasi pemasok"); }
+  if(bebas<=0){ ok=false; reasons.push("Tidak ada stok bebas"); }
+  const faktor = s.status==="perkiraan" ? st.faktorPerkiraan : 1;
+  const capWet = bebas * st.maxAmbil * faktor;
+  const umur = daysSince(s.diperbarui);
+  return {s, kf, bebasRaw, bebas, rel, cw, cDry, eff, ok, reasons, capWet, capDry:capWet*kf, umur};
+}
+
+function allocate(list, st, rankKey){
+  const pool = list.filter(a=>a.ok).sort((a,b)=>a[rankKey]-b[rankKey]);
+  let need = st.kebutuhan, budget = st.anggaran;
+  const items = [];
+  for(const a of pool){
+    if(need <= 0.01) break;
+    let dry = Math.min(a.capDry, need / a.rel.v);
+    let note = dry >= a.capDry - 1e-6 ? "Diambil sampai batas stok bebas" : "Menutup sisa kebutuhan";
+    const maxByBudget = budget / a.cDry;
+    if(dry > maxByBudget){ dry = Math.max(0,maxByBudget); note = "Dibatasi anggaran"; }
+    if(dry < 0.5) continue;
+    const wet = note==="Menutup sisa kebutuhan" ? Math.ceil(dry / a.kf * 2)/2 : Math.floor(dry / a.kf * 2)/2;
+    dry = wet * a.kf;
+    items.push({a, wet, dry, exp:dry*a.rel.v, cost:wet*a.cw, note});
+    need -= dry * a.rel.v;
+    budget -= wet * a.cw;
+  }
+  const used = new Set(items.map(i=>i.a.s.id));
+  const backup = pool.filter(a=>{
+      const it = items.find(i=>i.a.s.id===a.s.id);
+      return !it || a.capDry - it.dry > 1;
+    })
+    .map(a=>{ const it = items.find(i=>i.a.s.id===a.s.id); return {a, sisaDry:a.capDry-(it?it.dry:0), sisaWet:(a.capDry-(it?it.dry:0))/a.kf, baru:!used.has(a.s.id)}; })
+    .sort((x,y)=>x.a.eff-y.a.eff).slice(0,3);
+  return {items, backup, need:Math.max(0,need)};
+}
+
+function totals(items, st){
+  const wet = items.reduce((t,i)=>t+i.wet,0);
+  const dry = items.reduce((t,i)=>t+i.dry,0);
+  const exp = items.reduce((t,i)=>t+i.exp,0);
+  const cost = items.reduce((t,i)=>t+i.cost,0);
+  return {wet,dry,exp,cost,perDry: exp? cost/exp : 0, kurang:Math.max(0,st.kebutuhan-exp)};
+}
+
+function computePlan(){
+  const st = S.settings;
+  const list = S.suppliers.map(s=>analyse(s,st));
+  const rec = allocate(list, st, "eff");
+  // aturan pembanding: harga beli per ton basah termurah, tanpa memperhitungkan kadar air, angkut, dan keandalan
+  const baseList = list.map(a=>Object.assign({},a,{rawPrice:a.s.harga}));
+  const base = allocateSimple(baseList, st);
+  S.plan = {
+    dibuat: TODAY.toISOString().slice(0,10),
+    periode: st.periode, kebutuhan: st.kebutuhan,
+    rows: rec.items.map(i=>({sid:i.a.s.id, wet:i.wet, note:i.note})),
+    backup: rec.backup.map(b=>({sid:b.a.s.id, sisaWet:b.sisaWet, baru:b.baru})),
+    base: base
+  };
+  save();
+}
+
+function allocateSimple(list, st){
+  const pool = list.filter(a=>a.ok).sort((a,b)=>a.rawPrice-b.rawPrice);
+  let need = st.kebutuhan; const items=[];
+  for(const a of pool){
+    if(need<=0.01) break;
+    const dry = Math.min(a.capDry, need);
+    if(dry<0.5) continue;
+    const wet = dry < a.capDry ? Math.ceil(dry/a.kf*2)/2 : Math.floor(dry/a.kf*2)/2;
+    items.push({sid:a.s.id, wet, dry:wet*a.kf, exp:wet*a.kf*a.rel.v, cost:wet*a.cw});
+    need -= wet*a.kf;
+  }
+  const exp = items.reduce((t,i)=>t+i.exp,0), cost = items.reduce((t,i)=>t+i.cost,0);
+  return {n:items.length, exp, cost, perDry: exp?cost/exp:0, kurang:Math.max(0,st.kebutuhan-exp)};
+}
+
+function planItems(){
+  if(!S.plan) return [];
+  const st = S.settings;
+  return S.plan.rows.map(r=>{
+    const s = S.suppliers.find(x=>x.id===r.sid); if(!s) return null;
+    const a = analyse(s,st);
+    const dry = r.wet*a.kf;
+    return {a, r, wet:r.wet, dry, exp:dry*a.rel.v, cost:r.wet*a.cw, note:r.note};
+  }).filter(Boolean);
+}
+
+/* ---------- tampilan umum ---------- */
+function statusTag(s){
+  return s.status==="dikonfirmasi" ? '<span class="tag t-green">Dikonfirmasi pemasok</span>' : '<span class="tag t-amber">Perkiraan</span>';
+}
+function freshTag(umur){
+  if(umur>14) return `<span class="tag t-red">Diperbarui ${umur} hari lalu</span>`;
+  if(umur>7) return `<span class="tag t-amber">Diperbarui ${umur} hari lalu</span>`;
+  return `<span class="tag t-gray">Diperbarui ${umur} hari lalu</span>`;
+}
+function relText(rel){
+  return rel.asumsi ? `<span class="tag t-amber">${fmtPct(rel.v,0)} asumsi awal</span>` : `${fmtPct(rel.v,0)} <span class="small">dari ${rel.n} kiriman</span>`;
+}
+
+const views = {};
+
+/* ---------- Ringkasan ---------- */
+views.ringkasan = function(){
+  const st = S.settings;
+  const list = S.suppliers.map(s=>analyse(s,st));
+  const lolos = list.filter(a=>a.ok);
+  const capDry = lolos.reduce((t,a)=>t+a.capDry,0);
+  const lama = list.filter(a=>a.umur>7);
+  const open = S.orders.filter(o=>o.status==="dipesan");
+  const done = S.orders.filter(o=>o.status==="selesai");
+  const last = done[done.length-1];
+  const k = last ? orderKpi(last) : null;
+  const step = S.plan ? (open.length? 3 : 2) : 1;
+
+  return `
+  <h1>Ringkasan pengadaan</h1>
+  <p class="sub">${esc(st.pembeli)} · Periode ${esc(st.periode)}</p>
+
+  <div class="card">
+    <h2>Siklus pembelian periode ini</h2>
+    <div class="flow">
+      <span class="${step>=1?'on':''}">1 Perbarui data pemasok</span>
+      <span class="${step>=2?'on':''}">2 Susun rencana</span>
+      <span class="${step>=3?'on':''}">3 Setujui dan pesan</span>
+      <span>4 Catat penerimaan</span>
+      <span>5 Evaluasi</span>
+    </div>
+  </div>
+
+  <div class="grid g4">
+    <div class="card stat"><div class="k">Kebutuhan pembeli</div><div class="v">${fmtT(st.kebutuhan,0)} t</div><div class="h">ton kering, ${esc(st.periode)}</div></div>
+    <div class="card stat"><div class="k">Stok bebas lolos mutu</div><div class="v">${fmtT(capDry,0)} t</div><div class="h">ton kering, ${lolos.length} dari ${list.length} pemasok</div></div>
+    <div class="card stat"><div class="k">Biaya per ton kering diterima</div><div class="v">${k?fmtRp(k.perDry):"Belum ada"}</div><div class="h">${k?"siklus "+esc(last.periode):"catat penerimaan dulu"}</div></div>
+    <div class="card stat"><div class="k">Pemenuhan siklus terakhir</div><div class="v">${k?fmtPct(k.fill,0):"Belum ada"}</div><div class="h">${k?fmtT(k.accDry)+" t kering diterima":""}</div></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Perlu perhatian</h2>
+      ${capDry < st.kebutuhan ? `<div class="alert r">Stok bebas yang lolos mutu (${fmtT(capDry)} t kering) lebih kecil dari kebutuhan ${fmtT(st.kebutuhan,0)} t. Tambah pemasok atau bicarakan jadwal dengan pembeli.</div>`:""}
+      ${lama.map(a=>`<div class="alert a">${esc(a.s.nama)} terakhir memperbarui stok ${a.umur} hari lalu. Minta konfirmasi sebelum memesan.</div>`).join("")}
+      ${list.filter(a=>a.bebasRaw<0).map(a=>`<div class="alert r">Catatan ${esc(a.s.nama)} tidak cocok. Janji penjualan melebihi stok sebesar ${fmtT(-a.bebasRaw)} t basah.</div>`).join("")}
+      ${list.filter(a=>!a.ok && a.reasons.length && a.bebas>0).map(a=>`<div class="alert a">${esc(a.s.nama)} tidak dipakai. ${esc(a.reasons.join(". "))}.</div>`).join("")}
+      ${open.length?`<div class="alert g">${open.length} pesanan menunggu pencatatan penerimaan.</div>`:""}
+    </div>
+    <div class="card">
+      <h2>Langkah berikutnya</h2>
+      <p class="small">${S.plan ? "Rencana periode ini sudah disusun pada "+esc(S.plan.dibuat)+"." : "Rencana periode ini belum disusun."}</p>
+      <div class="row">
+        <button class="btn" data-go="pemasok">Perbarui data pemasok</button>
+        <button class="btn pri" data-go="rencana">${S.plan?"Buka rencana":"Susun rencana pembelian"}</button>
+        ${open.length?'<button class="btn" data-go="pesanan">Catat penerimaan</button>':""}
+      </div>
+      <hr>
+      <p class="small">AgriFlow menyarankan jumlah beli per pemasok. Staf pengadaan yang menyetujui pesanan. Pemeriksaan mutu fisik tetap dilakukan saat barang diterima.</p>
+    </div>
+  </div>`;
+};
+
+/* ---------- Pemasok ---------- */
+const FIELDS = [
+  ["nama","Nama pemasok","text"],["lokasi","Lokasi","text"],["jarak","Jarak ke pembeli (km)","number"],
+  ["stokAwal","Stok awal (t basah)","number"],["produksi","Perkiraan produksi periode (t basah)","number"],
+  ["pakaiSendiri","Dipakai sendiri (t basah)","number"],["dijanjikan","Sudah dijanjikan ke pihak lain (t basah)","number"],
+  ["susut","Susut atau hilang (t basah)","number"],["kadarAir","Kadar air basis basah (%)","number"],["abu","Kadar abu (%)","number"],
+  ["harga","Harga beli (Rp per t basah)","number"],["biayaOlah","Biaya muat dan olah (Rp per t basah)","number"],
+  ["ongkosKm","Ongkos angkut (Rp per t per km)","number"],["diperbarui","Tanggal data diperbarui","date"]
+];
+
+views.pemasok = function(){
+  const st = S.settings;
+  const list = S.suppliers.map(s=>analyse(s,st));
+  return `
+  <h1>Data pemasok</h1>
+  <p class="sub">Stok bebas dihitung dari stok awal ditambah produksi, lalu dikurangi pemakaian sendiri, janji ke pihak lain, dan susut. Semua biaya diubah ke rupiah per ton kering sampai di pembeli.</p>
+
+  <div class="card">
+    <div class="row">
+      <h2 style="margin:0">${list.length} pemasok</h2><div class="spacer"></div>
+      <button class="btn sm" id="dlTpl">Unduh template CSV</button>
+      <label class="btn sm" style="margin:0;color:var(--ink)">Unggah CSV<input type="file" id="upCsv" accept=".csv" hidden></label>
+      <button class="btn sm" id="dlCsv">Ekspor CSV</button>
+      <button class="btn sm dark" id="addSup">Tambah pemasok</button>
+    </div>
+    <div id="supForm"></div>
+  </div>
+
+  <div class="card tbl">
+    <table>
+      <thead><tr>
+        <th>Pemasok</th><th>Status data</th><th class="n">Stok bebas<br>t basah</th><th class="n">Kadar air</th><th class="n">Abu</th>
+        <th class="n">Biaya sampai tujuan<br>per t kering</th><th class="n">Keandalan kirim</th><th>Mutu</th><th></th>
+      </tr></thead>
+      <tbody>
+      ${list.map(a=>`<tr class="${a.ok?'':'off'}">
+        <td><b>${esc(a.s.nama)}</b><div class="small">${esc(a.s.lokasi)} · ${fmtT(a.s.jarak,0)} km</div></td>
+        <td>${statusTag(a.s)}<div style="margin-top:4px">${freshTag(a.umur)}</div></td>
+        <td class="n">${fmtT(a.bebas)}${a.bebasRaw<0?'<div><span class="tag t-red">Catatan tidak cocok</span></div>':""}</td>
+        <td class="n">${fmtT(a.s.kadarAir)}%</td>
+        <td class="n">${fmtT(a.s.abu)}%</td>
+        <td class="n">${fmtRp(a.cDry)}<div class="small">harga beli ${fmtRp(a.s.harga)} per t basah</div></td>
+        <td class="n">${relText(a.rel)}</td>
+        <td>${a.ok?'<span class="tag t-green">Lolos</span>':`<span class="tag t-red">Tidak dipakai</span><div class="why">${esc(a.reasons.join(". "))}</div>`}</td>
+        <td><button class="btn sm" data-edit="${a.s.id}">Ubah</button></td>
+      </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>Cara AgriFlow menghitung angka di tabel</summary>
+      <div class="small" style="margin-top:10px;line-height:1.7">
+        Stok bebas = stok awal + produksi − dipakai sendiri − dijanjikan − susut. Nilai negatif ditampilkan sebagai catatan tidak cocok dan dianggap nol.<br>
+        Massa kering = massa basah × (1 − kadar air/100).<br>
+        Biaya sampai tujuan per t kering = (harga beli + biaya muat dan olah + ongkos angkut × jarak) ÷ (1 − kadar air/100).<br>
+        Keandalan kirim = total diterima ÷ total dijanjikan dari enam pengiriman terakhir. Pemasok tanpa riwayat memakai asumsi awal 85% sampai ada data.
+      </div>
+    </details>
+  </div>`;
+};
+
+function supplierForm(s){
+  const isNew = !s;
+  s = s || {id:uid(),nama:"",lokasi:"",jarak:20,stokAwal:0,produksi:0,pakaiSendiri:0,dijanjikan:0,susut:0,kadarAir:12,abu:18,harga:600000,biayaOlah:90000,ongkosKm:3200,status:"perkiraan",diperbarui:TODAY.toISOString().slice(0,10),riwayat:[]};
+  return `<hr><h2>${isNew?"Tambah pemasok":"Ubah "+esc(s.nama)}</h2>
+  <form id="fSup" data-id="${s.id}" data-new="${isNew?1:0}">
+    <div class="form">
+      ${FIELDS.map(([k,l,t])=>`<div><label>${l}</label><input name="${k}" type="${t}" ${t==="number"?'step="any" min="0"':""} value="${esc(s[k])}" required></div>`).join("")}
+      <div><label>Status stok</label><select name="status">
+        <option value="dikonfirmasi" ${s.status==="dikonfirmasi"?"selected":""}>Dikonfirmasi pemasok</option>
+        <option value="perkiraan" ${s.status==="perkiraan"?"selected":""}>Perkiraan</option>
+      </select></div>
+    </div>
+    <div class="row end" style="margin-top:12px">
+      ${isNew?"":'<button type="button" class="btn link" id="delSup">Hapus pemasok</button><div class="spacer"></div>'}
+      <button type="button" class="btn" id="cancelSup">Batal</button>
+      <button class="btn pri">Simpan</button>
+    </div>
+  </form>`;
+}
+
+const CSV_COLS = ["nama","lokasi","jarak","stokAwal","produksi","pakaiSendiri","dijanjikan","susut","kadarAir","abu","harga","biayaOlah","ongkosKm","status","diperbarui"];
+function toCsv(rows){ return CSV_COLS.join(",") + "\n" + rows.map(r=>CSV_COLS.map(c=>{const v=String(r[c]??""); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(",")).join("\n"); }
+function parseCsv(text){
+  const lines = text.replace(/\r/g,"").split("\n").filter(l=>l.trim());
+  const split = l => { const out=[]; let cur="", q=false; for(let i=0;i<l.length;i++){const c=l[i]; if(q){ if(c==='"'&&l[i+1]==='"'){cur+='"';i++;} else if(c==='"') q=false; else cur+=c; } else if(c==='"') q=true; else if(c===','){out.push(cur);cur="";} else cur+=c;} out.push(cur); return out; };
+  const head = split(lines[0]).map(h=>h.trim());
+  return lines.slice(1).map(l=>{ const v=split(l); const o={}; head.forEach((h,i)=>o[h]=v[i]); return o; });
+}
+function download(name, text){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text],{type:"text/csv"}));
+  a.download = name; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* ---------- Rencana ---------- */
+views.rencana = function(){
+  const st = S.settings;
+  const items = planItems();
+  const t = totals(items, st);
+  const b = S.plan ? S.plan.base : null;
+  const hemat = b && b.perDry ? (b.perDry - t.perDry)/b.perDry : 0;
+  const open = S.orders.find(o=>o.status==="dipesan" && o.periode===st.periode);
+
+  return `
+  <h1>Rencana pembelian</h1>
+  <p class="sub">Isi kebutuhan pembeli dan batas operasi, lalu AgriFlow menyusun saran jumlah beli per pemasok beserta cadangannya.</p>
+
+  <form class="card" id="fSet">
+    <h2>Kebutuhan dan batas</h2>
+    <div class="form">
+      <div><label>Periode</label><input name="periode" value="${esc(st.periode)}"></div>
+      <div><label>Pembeli</label><input name="pembeli" value="${esc(st.pembeli)}"></div>
+      <div><label>Kebutuhan (t kering)</label><input name="kebutuhan" type="number" step="any" min="1" value="${st.kebutuhan}"></div>
+      <div><label>Kadar air maksimum (%)</label><input name="maxAir" type="number" step="any" value="${st.maxAir}"></div>
+      <div><label>Kadar abu maksimum (%)</label><input name="maxAbu" type="number" step="any" value="${st.maxAbu}"></div>
+      <div><label>Anggaran pembelian (Rp)</label><input name="anggaran" type="number" step="any" value="${st.anggaran}"></div>
+      <div><label>Biaya jika bahan kurang (Rp per t kering)</label><input name="biayaKurang" type="number" step="any" value="${st.biayaKurang}"></div>
+      <div><label>Porsi stok bebas yang boleh diambil (%)</label><input name="maxAmbil" type="number" step="any" min="1" max="100" value="${st.maxAmbil*100}"></div>
+      <div><label>Porsi stok berstatus perkiraan yang dihitung (%)</label><input name="faktorPerkiraan" type="number" step="any" min="0" max="100" value="${st.faktorPerkiraan*100}"></div>
+      <div><label>Pakai stok perkiraan</label><select name="hanyaDikonfirmasi">
+        <option value="0" ${!st.hanyaDikonfirmasi?"selected":""}>Ya, dengan porsi di atas</option>
+        <option value="1" ${st.hanyaDikonfirmasi?"selected":""}>Tidak, hanya yang dikonfirmasi</option>
+      </select></div>
+    </div>
+    <div class="row end" style="margin-top:12px"><button class="btn pri">${S.plan?"Hitung ulang rencana":"Susun rencana"}</button></div>
+  </form>
+
+  ${!S.plan ? `<div class="card empty">Rencana belum disusun. Periksa kebutuhan di atas lalu tekan Susun rencana.</div>` : `
+
+  <div class="grid g4">
+    <div class="card stat"><div class="k">Dipesan</div><div class="v">${fmtT(t.wet)} t</div><div class="h">basah, setara ${fmtT(t.dry)} t kering</div></div>
+    <div class="card stat"><div class="k">Perkiraan diterima</div><div class="v">${fmtT(t.exp)} t</div><div class="h">kering, setelah memperhitungkan keandalan kirim</div></div>
+    <div class="card stat"><div class="k">Biaya per t kering diterima</div><div class="v">${fmtRp(t.perDry)}</div><div class="h">total ${fmtRp(t.cost)}</div></div>
+    <div class="card stat"><div class="k">Anggaran terpakai</div><div class="v">${fmtPct(t.cost/st.anggaran,0)}</div><div class="h">dari ${fmtRp(st.anggaran)}</div></div>
+  </div>
+
+  ${t.kurang>0.5?`<div class="alert r">Perkiraan kekurangan ${fmtT(t.kurang)} t kering. Pertimbangkan pemasok cadangan di bawah atau bicarakan jadwal dengan pembeli.</div>`:`<div class="alert g">Perkiraan penerimaan memenuhi kebutuhan ${fmtT(st.kebutuhan,0)} t kering.</div>`}
+
+  <div class="card tbl">
+    <div class="row"><h2 style="margin:0">Saran pembelian</h2><div class="spacer"></div><span class="small">Jumlah dapat diubah staf sebelum disetujui</span></div>
+    <table style="margin-top:10px">
+      <thead><tr><th>Urutan</th><th>Pemasok</th><th class="n">Pesan<br>t basah</th><th class="n">Setara<br>t kering</th><th class="n">Perkiraan diterima<br>t kering</th><th class="n">Biaya per<br>t kering</th><th class="n">Total biaya</th><th>Alasan</th></tr></thead>
+      <tbody>
+      ${items.map((i,idx)=>`<tr>
+        <td>${idx+1}</td>
+        <td><b>${esc(i.a.s.nama)}</b><div style="margin-top:3px">${statusTag(i.a.s)}</div></td>
+        <td class="n"><input type="number" step="0.5" min="0" value="${i.wet}" data-wet="${i.a.s.id}"><div class="small">maks ${fmtT(i.a.capWet)}</div></td>
+        <td class="n">${fmtT(i.dry)}</td>
+        <td class="n">${fmtT(i.exp)}<div class="small">keandalan ${fmtPct(i.a.rel.v,0)}</div></td>
+        <td class="n">${fmtRp(i.a.cDry)}</td>
+        <td class="n">${fmtRp(i.cost)}</td>
+        <td class="why">${esc(i.note)}. ${i.a.rel.asumsi?"Belum ada riwayat kirim.":""} ${i.a.umur>7?"Data perlu dicek ulang.":""}</td>
+      </tr>`).join("")}
+      </tbody>
+      <tfoot><tr><td></td><td>Total</td><td class="n">${fmtT(t.wet)}</td><td class="n">${fmtT(t.dry)}</td><td class="n">${fmtT(t.exp)}</td><td class="n">${fmtRp(t.perDry)}</td><td class="n">${fmtRp(t.cost)}</td><td></td></tr></tfoot>
+    </table>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2>Pemasok cadangan</h2>
+      ${S.plan.backup.length ? `<table style="min-width:0"><thead><tr><th>Pemasok</th><th class="n">Sisa tersedia t basah</th><th class="n">Biaya per t kering</th></tr></thead><tbody>
+        ${S.plan.backup.map(bk=>{const s=S.suppliers.find(x=>x.id===bk.sid); if(!s) return ""; const a=analyse(s,st); return `<tr><td>${esc(s.nama)} ${bk.baru?'<span class="tag t-navy">Belum dipakai</span>':'<span class="tag t-gray">Tambahan</span>'}</td><td class="n">${fmtT(bk.sisaWet)}</td><td class="n">${fmtRp(a.cDry)}</td></tr>`;}).join("")}
+      </tbody></table>` : `<p class="small">Semua stok bebas yang lolos mutu sudah terpakai. Cari pemasok baru bila ingin punya cadangan.</p>`}
+    </div>
+    <div class="card">
+      <h2>Pembanding aturan sederhana</h2>
+      <p class="small">Aturan pembanding memilih harga beli per ton basah termurah dengan filter mutu yang sama, tanpa menghitung kadar air, ongkos angkut, dan keandalan kirim.</p>
+      <table style="min-width:0"><thead><tr><th></th><th class="n">Aturan sederhana</th><th class="n">Saran AgriFlow</th></tr></thead><tbody>
+        <tr><td>Biaya per t kering diterima</td><td class="n">${fmtRp(b.perDry)}</td><td class="n"><b>${fmtRp(t.perDry)}</b></td></tr>
+        <tr><td>Perkiraan kekurangan</td><td class="n">${fmtT(b.kurang)} t</td><td class="n"><b>${fmtT(t.kurang)} t</b></td></tr>
+        <tr><td>Jumlah pemasok</td><td class="n">${b.n}</td><td class="n"><b>${items.length}</b></td></tr>
+      </tbody></table>
+      <p class="small" style="margin-top:8px">Pada data contoh, biaya saran AgriFlow ${fmtPct(Math.abs(hemat))} ${hemat>=0?"lebih rendah":"lebih tinggi"}. Angka ini hasil simulasi. Manfaat sebenarnya diukur dari penerimaan barang saat pilot.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div><b>Setujui rencana</b><div class="small">Persetujuan membuat daftar pesanan untuk ${esc(st.periode)}. Pesanan tetap dikirim staf ke pemasok seperti biasa.</div></div>
+      <div class="spacer"></div>
+      ${open?'<span class="tag t-green">Sudah disetujui</span>':'<button class="btn pri" id="approve">Setujui dan buat pesanan</button>'}
+    </div>
+  </div>`}
+
+  <div class="card">
+    <details>
+      <summary>Cara saran disusun</summary>
+      <div class="small" style="margin-top:10px;line-height:1.7">
+        1. Pemasok yang melewati batas kadar air atau abu dikeluarkan.<br>
+        2. Setiap pemasok diberi biaya efektif = biaya per t kering + (1 − keandalan kirim) × biaya jika bahan kurang.<br>
+        3. Pemasok diurutkan dari biaya efektif terendah. Jumlah beli ditambah sampai perkiraan penerimaan menutup kebutuhan, dengan batas stok bebas dan anggaran.<br>
+        4. Sisa stok bebas yang lolos mutu ditampilkan sebagai cadangan.<br>
+        Versi pilot dapat memakai pemrograman linear bila ada batas tambahan seperti kapasitas truk, minimum pesanan, atau jadwal bongkar.
+      </div>
+    </details>
+  </div>`;
+};
+
+/* ---------- Pesanan dan penerimaan ---------- */
+function orderKpi(o){
+  let accDry=0, cost=0, tepat=0, qty=0, tolak=0, janjiDry=0;
+  o.items.forEach(i=>{
+    const acc = Math.max(0,(i.terima||0)-(i.ditolak||0));
+    accDry += acc*(1-(i.airUkur??i.air)/100);
+    cost += acc*i.costWet;
+    tolak += i.ditolak||0;
+    qty += i.qtyBasah;
+    janjiDry += i.qtyBasah*(1-i.air/100);
+    if(i.tepatWaktu) tepat++;
+  });
+  return {accDry, cost, perDry: accDry?cost/accDry:0, fill: accDry/o.kebutuhan, kurang:Math.max(0,o.kebutuhan-accDry), tolak, qty, janjiDry, tepat: o.items.length? tepat/o.items.length:0};
+}
+
+views.pesanan = function(){
+  const open = S.orders.filter(o=>o.status==="dipesan");
+  const done = S.orders.filter(o=>o.status==="selesai").slice().reverse();
+  return `
+  <h1>Pesanan dan penerimaan</h1>
+  <p class="sub">Catat berat yang datang, hasil uji kadar air, dan bahan yang ditolak. Data ini memperbarui keandalan kirim tiap pemasok untuk rencana berikutnya.</p>
+
+  ${open.length? open.map(o=>`
+  <form class="card tbl" data-order="${o.id}">
+    <div class="row"><h2 style="margin:0">Pesanan ${esc(o.periode)}</h2><span class="tag t-amber">Menunggu penerimaan</span><div class="spacer"></div><span class="small">Disetujui ${esc(o.dibuat)} · kebutuhan ${fmtT(o.kebutuhan,0)} t kering</span></div>
+    <table style="margin-top:10px">
+      <thead><tr><th>Pemasok</th><th class="n">Dipesan<br>t basah</th><th class="n">Datang<br>t basah</th><th class="n">Kadar air terukur<br>%</th><th class="n">Ditolak<br>t basah</th><th>Tepat waktu</th></tr></thead>
+      <tbody>${o.items.map((i,idx)=>`<tr>
+        <td><b>${esc(i.nama)}</b></td>
+        <td class="n">${fmtT(i.qtyBasah)}</td>
+        <td class="n"><input type="number" step="any" min="0" name="terima-${idx}" value="${i.terima??""}" placeholder="${i.qtyBasah}"></td>
+        <td class="n"><input type="number" step="any" min="0" max="100" name="air-${idx}" value="${i.airUkur??""}" placeholder="${i.air}"></td>
+        <td class="n"><input type="number" step="any" min="0" name="tolak-${idx}" value="${i.ditolak??""}" placeholder="0"></td>
+        <td><select name="tepat-${idx}"><option value="1">Ya</option><option value="0" ${i.tepatWaktu===false?"selected":""}>Terlambat</option></select></td>
+      </tr>`).join("")}</tbody>
+    </table>
+    <div class="row end" style="margin-top:12px">
+      <button type="button" class="btn link" data-cancel="${o.id}">Batalkan pesanan</button>
+      <div class="spacer"></div>
+      <button class="btn pri">Simpan penerimaan dan tutup pesanan</button>
+    </div>
+  </form>`).join("") : `<div class="card empty">Tidak ada pesanan yang menunggu. Setujui rencana di halaman Rencana Pembelian untuk membuat pesanan.</div>`}
+
+  <div class="card tbl">
+    <h2>Pesanan selesai</h2>
+    ${done.length?`<table>
+      <thead><tr><th>Periode</th><th class="n">Kebutuhan<br>t kering</th><th class="n">Diterima lolos mutu<br>t kering</th><th class="n">Ditolak<br>t basah</th><th class="n">Biaya per<br>t kering</th><th class="n">Pemenuhan</th></tr></thead>
+      <tbody>${done.map(o=>{const k=orderKpi(o); return `<tr><td>${esc(o.periode)}</td><td class="n">${fmtT(o.kebutuhan,0)}</td><td class="n">${fmtT(k.accDry)}</td><td class="n">${fmtT(k.tolak)}</td><td class="n">${fmtRp(k.perDry)}</td><td class="n">${fmtPct(k.fill,0)}</td></tr>`;}).join("")}</tbody>
+    </table>`:'<p class="small">Belum ada.</p>'}
+  </div>`;
+};
+
+/* ---------- Evaluasi ---------- */
+views.evaluasi = function(){
+  const st = S.settings;
+  const done = S.orders.filter(o=>o.status==="selesai");
+  const ks = done.map(o=>({o,k:orderKpi(o)}));
+  const last = ks[ks.length-1];
+  const selisih = last ? (st.baselineBiaya - last.k.perDry)/st.baselineBiaya : 0;
+  const rels = S.suppliers.map(s=>{ const r=(s.riwayat||[]).slice(-6); return {s, j:r.reduce((a,x)=>a+x.janji,0), t:r.reduce((a,x)=>a+x.terima,0)}; }).filter(x=>x.j>0);
+  const maxJ = Math.max(1,...rels.map(x=>x.j));
+
+  return `
+  <h1>Evaluasi hasil</h1>
+  <p class="sub">Tiga ukuran utama pilot adalah biaya per ton kering yang diterima sesuai mutu, pemenuhan tepat waktu, dan volume kekurangan.</p>
+
+  <form class="card" id="fBase">
+    <div class="row">
+      <div style="min-width:240px;flex:1"><label>Biaya per t kering dengan cara pembelian mitra saat ini (baseline)</label><input name="baselineBiaya" type="number" step="any" value="${st.baselineBiaya}"></div>
+      <button class="btn" style="align-self:flex-end">Simpan baseline</button>
+    </div>
+    <p class="small" style="margin:8px 0 0">Baseline disepakati bersama mitra dari catatan pembelian sebelum memakai AgriFlow, pada mutu dan periode yang sebanding.</p>
+  </form>
+
+  ${!last?'<div class="card empty">Belum ada pesanan selesai untuk dievaluasi.</div>':`
+  <div class="grid g4">
+    <div class="card stat"><div class="k">Biaya per t kering diterima</div><div class="v">${fmtRp(last.k.perDry)}</div><div class="h">${selisih>=0?"lebih rendah":"lebih tinggi"} ${fmtPct(Math.abs(selisih))} dari baseline</div></div>
+    <div class="card stat"><div class="k">Pemenuhan kebutuhan</div><div class="v">${fmtPct(last.k.fill,0)}</div><div class="h">${fmtT(last.k.accDry)} dari ${fmtT(last.o.kebutuhan,0)} t kering</div></div>
+    <div class="card stat"><div class="k">Kekurangan</div><div class="v">${fmtT(last.k.kurang)} t</div><div class="h">kering, siklus ${esc(last.o.periode)}</div></div>
+    <div class="card stat"><div class="k">Pemasok tepat waktu</div><div class="v">${fmtPct(last.k.tepat,0)}</div><div class="h">${fmtT(last.k.tolak)} t basah ditolak</div></div>
+  </div>
+
+  <div class="card">
+    <h2>Keputusan pilot</h2>
+    ${decision(selisih,last.k)}
+  </div>`}
+
+  <div class="card">
+    <h2>Janji dan penerimaan per pemasok</h2>
+    <div class="legend"><span><i style="background:#c9d1de"></i>Dijanjikan</span><span><i style="background:var(--green)"></i>Diterima lolos mutu</span></div>
+    ${rels.length?`<svg viewBox="0 0 640 ${rels.length*44+10}" width="100%" role="img" aria-label="Perbandingan janji dan penerimaan per pemasok">
+      ${rels.map((x,i)=>{const y=i*44+6, w=460*x.j/maxJ, w2=460*x.t/maxJ; return `
+        <text x="0" y="${y+18}" font-size="12" fill="#1b2430">${esc(x.s.nama)}</text>
+        <rect x="130" y="${y}" width="${w}" height="14" rx="2" fill="#c9d1de"/>
+        <rect x="130" y="${y+17}" width="${w2}" height="14" rx="2" fill="#1f7a4d"/>
+        <text x="${136+Math.max(w,w2)}" y="${y+26}" font-size="12" fill="#5d6673">${fmtT(x.t,0)} dari ${fmtT(x.j,0)} t · ${fmtPct(x.t/x.j,0)}</text>`;}).join("")}
+    </svg>`:'<p class="small">Belum ada riwayat pengiriman.</p>'}
+  </div>
+
+  <div class="card">
+    <div class="row"><div><b>Reset prototipe</b><div class="small">Kembalikan semua data ke contoh awal.</div></div><div class="spacer"></div><button class="btn" id="reset">Muat ulang data contoh</button></div>
+  </div>`;
+};
+
+function decision(selisih,k){
+  if(selisih>=0.03 && k.fill>=0.95) return `<div class="alert g">Lanjut. Biaya turun ${fmtPct(selisih)} dan pemenuhan ${fmtPct(k.fill,0)}. Uji penawaran langganan dengan mitra.</div>`;
+  if(selisih>0 || k.fill>=0.95) return `<div class="alert a">Perbaiki. Ada perbaikan sebagian, target penurunan biaya 3% dengan pemenuhan minimal 95% belum tercapai. Periksa data pemasok dan alasan saran yang ditolak staf.</div>`;
+  return `<div class="alert r">Tinjau ulang. Biaya belum lebih rendah dari baseline dan pemenuhan di bawah 95%. Periksa apakah masalah utama ada di data, mutu fisik, atau modal kerja.</div>`;
+}
+
+/* ---------- render dan interaksi ---------- */
+function render(){
+  const v = S.view in views ? S.view : "ringkasan";
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on", b.dataset.v===v));
+  $("#app").innerHTML = views[v]();
+  bind(v);
+}
+function go(v){ S.view=v; save(); render(); window.scrollTo(0,0); }
+
+function bind(v){
+  document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+  if(v==="pemasok"){
+    const openForm = s => { $("#supForm").innerHTML = supplierForm(s); bindForm(); $("#supForm").scrollIntoView({behavior:"smooth",block:"nearest"}); };
+    $("#addSup").onclick = ()=>openForm(null);
+    document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openForm(S.suppliers.find(s=>s.id===b.dataset.edit)));
+    $("#dlTpl").onclick = ()=>download("template-pemasok-agriflow.csv", toCsv([{nama:"Penggilingan Baru",lokasi:"Kecamatan",jarak:20,stokAwal:0,produksi:0,pakaiSendiri:0,dijanjikan:0,susut:0,kadarAir:12,abu:18,harga:600000,biayaOlah:90000,ongkosKm:3200,status:"perkiraan",diperbarui:TODAY.toISOString().slice(0,10)}]));
+    $("#dlCsv").onclick = ()=>download("pemasok-agriflow.csv", toCsv(S.suppliers));
+    $("#upCsv").onchange = e=>{
+      const f=e.target.files[0]; if(!f) return;
+      f.text().then(txt=>{
+        const rows = parseCsv(txt); let n=0;
+        rows.forEach(r=>{
+          if(!r.nama) return;
+          const o = {riwayat:[]};
+          CSV_COLS.forEach(c=>o[c] = ["nama","lokasi","status","diperbarui"].includes(c) ? (r[c]||"") : Number(r[c]||0));
+          if(o.status!=="dikonfirmasi") o.status="perkiraan";
+          const ex = S.suppliers.find(s=>s.nama.toLowerCase()===o.nama.toLowerCase());
+          if(ex){ Object.assign(ex,o,{riwayat:ex.riwayat,id:ex.id}); } else { o.id=uid(); S.suppliers.push(o); }
+          n++;
+        });
+        S.plan=null; save(); render();
+        $("#supForm").innerHTML = `<div class="alert g">${n} pemasok diperbarui dari CSV. Susun ulang rencana agar memakai data terbaru.</div>`;
+      });
+    };
+  }
+
+  if(v==="rencana"){
+    $("#fSet").onsubmit = e=>{
+      e.preventDefault();
+      const f = new FormData(e.target), st = S.settings;
+      st.periode=f.get("periode"); st.pembeli=f.get("pembeli");
+      ["kebutuhan","maxAir","maxAbu","anggaran","biayaKurang"].forEach(k=>st[k]=Number(f.get(k)));
+      st.maxAmbil = Math.min(1,Math.max(0.01,Number(f.get("maxAmbil"))/100));
+      st.faktorPerkiraan = Math.min(1,Math.max(0,Number(f.get("faktorPerkiraan"))/100));
+      st.hanyaDikonfirmasi = f.get("hanyaDikonfirmasi")==="1";
+      computePlan(); render();
+    };
+    document.querySelectorAll("[data-wet]").forEach(inp=>inp.onchange=()=>{
+      const r = S.plan.rows.find(x=>x.sid===inp.dataset.wet);
+      r.wet = Math.max(0,Number(inp.value)||0); r.note = "Diubah staf";
+      save(); render();
+    });
+    const ap = $("#approve");
+    if(ap) ap.onclick = ()=>{
+      const items = planItems().filter(i=>i.wet>0);
+      S.orders.push({id:uid(),periode:S.settings.periode,dibuat:TODAY.toISOString().slice(0,10),kebutuhan:S.settings.kebutuhan,status:"dipesan",
+        items:items.map(i=>({sid:i.a.s.id,nama:i.a.s.nama,qtyBasah:i.wet,air:i.a.s.kadarAir,costWet:i.a.cw}))});
+      save(); go("pesanan");
+    };
+  }
+
+  if(v==="pesanan"){
+    document.querySelectorAll("form[data-order]").forEach(fm=>fm.onsubmit=e=>{
+      e.preventDefault();
+      const o = S.orders.find(x=>x.id===fm.dataset.order), f = new FormData(fm);
+      o.items.forEach((i,idx)=>{
+        const t = f.get("terima-"+idx), a = f.get("air-"+idx), d = f.get("tolak-"+idx);
+        i.terima = t===""? i.qtyBasah : Number(t);
+        i.airUkur = a===""? i.air : Number(a);
+        i.ditolak = d===""? 0 : Number(d);
+        i.tepatWaktu = f.get("tepat-"+idx)==="1";
+        const s = S.suppliers.find(x=>x.id===i.sid);
+        if(s) s.riwayat.push({janji:i.qtyBasah, terima:Math.max(0,i.terima-i.ditolak)});
+      });
+      o.status="selesai"; S.plan=null; save(); go("evaluasi");
+    });
+    document.querySelectorAll("[data-cancel]").forEach(b=>b.onclick=()=>{
+      S.orders = S.orders.filter(o=>o.id!==b.dataset.cancel); save(); render();
+    });
+  }
+
+  if(v==="evaluasi"){
+    $("#fBase").onsubmit = e=>{ e.preventDefault(); S.settings.baselineBiaya = Number(new FormData(e.target).get("baselineBiaya")); save(); render(); };
+    $("#reset").onclick = ()=>{ S = seed(); S.view="evaluasi"; save(); render(); };
+  }
+}
+
+function bindForm(){
+  const fm = $("#fSup");
+  fm.onsubmit = e=>{
+    e.preventDefault();
+    const f = new FormData(fm);
+    const o = {};
+    FIELDS.forEach(([k,,t])=>o[k] = t==="number" ? Number(f.get(k)) : f.get(k));
+    o.status = f.get("status");
+    if(fm.dataset.new==="1"){ o.id=fm.dataset.id; o.riwayat=[]; S.suppliers.push(o); }
+    else Object.assign(S.suppliers.find(s=>s.id===fm.dataset.id), o);
+    S.plan=null; save(); render();
+  };
+  $("#cancelSup").onclick = ()=>{ $("#supForm").innerHTML=""; };
+  const del = $("#delSup");
+  if(del) del.onclick = ()=>{ S.suppliers = S.suppliers.filter(s=>s.id!==fm.dataset.id); S.plan=null; save(); render(); };
+}
+
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>go(b.dataset.v));
+load(); render();
+})();
+</script>
+</body>
+</html>
