@@ -81,6 +81,14 @@ td input{padding:4px 6px;min-width:70px;text-align:right}
 details summary{cursor:pointer;color:var(--navy);font-weight:600}
 .small{font-size:12px;color:var(--muted)}
 hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.bars{display:grid;gap:10px}
+.brow{display:grid;grid-template-columns:130px 1fr 150px;gap:12px;align-items:center}
+.bname{font-size:13px}
+.btrack{display:grid;gap:3px}
+.bj,.bt{height:12px;border-radius:2px}
+.bj{background:#c9d1de}.bt{background:var(--green)}
+.bval{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:right}
+@media (max-width:600px){.brow{grid-template-columns:1fr}.bval{text-align:left}}
 </style>
 </head>
 <body>
@@ -126,7 +134,7 @@ function seed(){
       maxAmbil:0.8,
       faktorPerkiraan:0.7,
       hanyaDikonfirmasi:false,
-      baselineBiaya:1180000
+      baselineBiaya:950000
     },
     suppliers:[
       {id:"s1",nama:"Penggilingan A",lokasi:"Kecamatan Utara",jarak:18,stokAwal:40,produksi:70,pakaiSendiri:6,dijanjikan:20,susut:2,kadarAir:12,abu:18,harga:640000,biayaOlah:90000,ongkosKm:3200,status:"dikonfirmasi",diperbarui:"2026-09-27",riwayat:[{janji:30,terima:29},{janji:25,terima:25},{janji:28,terima:26}]},
@@ -220,7 +228,7 @@ function totals(items, st){
   const dry = items.reduce((t,i)=>t+i.dry,0);
   const exp = items.reduce((t,i)=>t+i.exp,0);
   const cost = items.reduce((t,i)=>t+i.cost,0);
-  return {wet,dry,exp,cost,perDry: exp? cost/exp : 0, kurang:Math.max(0,st.kebutuhan-exp)};
+  return {wet,dry,exp,cost,perDry: dry? cost/dry : 0, kurang:Math.max(0,st.kebutuhan-exp)};
 }
 
 function computePlan(){
@@ -252,7 +260,7 @@ function allocateSimple(list, st){
     need -= wet*a.kf;
   }
   const exp = items.reduce((t,i)=>t+i.exp,0), cost = items.reduce((t,i)=>t+i.cost,0);
-  return {n:items.length, exp, cost, perDry: exp?cost/exp:0, kurang:Math.max(0,st.kebutuhan-exp)};
+  return {n:items.length, exp, cost, perDry: items.reduce((t,i)=>t+i.dry,0)?cost/items.reduce((t,i)=>t+i.dry,0):0, kurang:Math.max(0,st.kebutuhan-exp)};
 }
 
 function planItems(){
@@ -553,7 +561,7 @@ function orderKpi(o){
     janjiDry += i.qtyBasah*(1-i.air/100);
     if(i.tepatWaktu) tepat++;
   });
-  return {accDry, cost, perDry: accDry?cost/accDry:0, fill: accDry/o.kebutuhan, kurang:Math.max(0,o.kebutuhan-accDry), tolak, qty, janjiDry, tepat: o.items.length? tepat/o.items.length:0};
+  return {accDry, cost, perDry: accDry?cost/accDry:0, fill: Math.min(1,accDry/o.kebutuhan), kurang:Math.max(0,o.kebutuhan-accDry), tolak, qty, janjiDry, tepat: o.items.length? tepat/o.items.length:0};
 }
 
 views.pesanan = function(){
@@ -631,13 +639,13 @@ views.evaluasi = function(){
   <div class="card">
     <h2>Janji dan penerimaan per pemasok</h2>
     <div class="legend"><span><i style="background:#c9d1de"></i>Dijanjikan</span><span><i style="background:var(--green)"></i>Diterima lolos mutu</span></div>
-    ${rels.length?`<svg viewBox="0 0 640 ${rels.length*44+10}" width="100%" role="img" aria-label="Perbandingan janji dan penerimaan per pemasok">
-      ${rels.map((x,i)=>{const y=i*44+6, w=460*x.j/maxJ, w2=460*x.t/maxJ; return `
-        <text x="0" y="${y+18}" font-size="12" fill="#1b2430">${esc(x.s.nama)}</text>
-        <rect x="130" y="${y}" width="${w}" height="14" rx="2" fill="#c9d1de"/>
-        <rect x="130" y="${y+17}" width="${w2}" height="14" rx="2" fill="#1f7a4d"/>
-        <text x="${136+Math.max(w,w2)}" y="${y+26}" font-size="12" fill="#5d6673">${fmtT(x.t,0)} dari ${fmtT(x.j,0)} t · ${fmtPct(x.t/x.j,0)}</text>`;}).join("")}
-    </svg>`:'<p class="small">Belum ada riwayat pengiriman.</p>'}
+    ${rels.length?`<div class="bars" role="img" aria-label="Perbandingan janji dan penerimaan per pemasok">
+      ${rels.map(x=>`<div class="brow">
+        <div class="bname">${esc(x.s.nama)}</div>
+        <div class="btrack"><div class="bj" style="width:${100*x.j/maxJ}%"></div><div class="bt" style="width:${100*x.t/maxJ}%"></div></div>
+        <div class="bval">${fmtT(x.t,0)} dari ${fmtT(x.j,0)} t · ${fmtPct(x.t/x.j,0)}</div>
+      </div>`).join("")}
+    </div>`:'<p class="small">Belum ada riwayat pengiriman.</p>'}
   </div>
 
   <div class="card">
